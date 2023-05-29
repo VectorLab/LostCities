@@ -1,10 +1,10 @@
 package mcjty.lostcities.dimensions.world.terraingen;
 
-import mcjty.lostcities.config.LostCityConfiguration;
+import java.util.Random;
+
 import mcjty.lostcities.dimensions.world.LostCityChunkGenerator;
 import mcjty.lostcities.dimensions.world.driver.IPrimerDriver;
-import mcjty.lostcities.dimensions.world.driver.OptimizedDriver;
-import mcjty.lostcities.dimensions.world.driver.SafeDriver;
+import mcjty.lostcities.dimensions.world.driver.RPrimerDriver;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -17,8 +17,6 @@ import net.minecraft.world.gen.NoiseGeneratorSimplex;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkGeneratorEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
-
-import java.util.Random;
 
 public class IslandTerrainGenerator {
     private LostCityChunkGenerator provider;
@@ -100,7 +98,7 @@ public class IslandTerrainGenerator {
         this.noiseGen5 = ctx.getScale();
         this.islandNoise = ctx.getIsland();
 
-        driver = LostCityConfiguration.OPTIMIZED_CHUNKGEN ? new OptimizedDriver() : new SafeDriver();
+        driver = RPrimerDriver.createPrimeDriver();
     }
 
     /**

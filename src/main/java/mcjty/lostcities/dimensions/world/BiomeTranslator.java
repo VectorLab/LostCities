@@ -77,7 +77,7 @@ public class BiomeTranslator {
         if (biome == null) {
             for (Biome b : Biome.REGISTRY) {
                 ResourceLocation registryName = b.getRegistryName();
-                if (registryName != null && biomeId.equals(registryName.getResourcePath())) {
+                if (registryName != null && biomeId.equals(registryName.getPath())) {
                     biome = b;
                     break;
                 }

@@ -1,6 +1,10 @@
 package mcjty.lostcities.config;
 
 import mcjty.lostcities.LostCities;
+import mcjty.lostcities.dimensions.world.driver.IPrimerDriver;
+import mcjty.lostcities.dimensions.world.driver.OptimizedDriver;
+import mcjty.lostcities.dimensions.world.driver.RPrimerDriver;
+import mcjty.lostcities.dimensions.world.driver.SafeDriver;
 import mcjty.lostcities.setup.ModSetup;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
@@ -65,12 +69,9 @@ public class LostCityConfiguration {
     public static boolean DIMENSION_BOP = true;
 
     public static boolean DEBUG = false;
-    public static boolean OPTIMIZED_CHUNKGEN = true;
+    //private static boolean OPTIMIZED_CHUNKGEN = true;
 
     public static String SPECIAL_BED_BLOCK = Blocks.DIAMOND_BLOCK.getRegistryName().toString();
-
-
-
 
     public static String[] init(Configuration cfg) {
         cfg.addCustomCategoryComment(CATEGORY_GENERAL, "General settings");
@@ -136,11 +137,12 @@ public class LostCityConfiguration {
         SPECIAL_BED_BLOCK = cfg.getString("specialBedBlock", CATEGORY_GENERAL, SPECIAL_BED_BLOCK, "Block to put underneath a bed so that it qualifies as a teleporter bed");
 
         DEBUG = cfg.getBoolean("debug", CATEGORY_GENERAL, DEBUG, "Enable debugging/logging");
-        OPTIMIZED_CHUNKGEN = cfg.getBoolean("optimizedChunkgen", CATEGORY_GENERAL, OPTIMIZED_CHUNKGEN, "Disable this if you have mods like NEID or JEID installed. Note that when NEID or JEID is present this is disabled by default");
-        if (ModSetup.neid || ModSetup.jeid) {
-            LostCities.setup.getLogger().log(Level.INFO, "NEID or JEID detected: disabling optimized chunkgeneration!");
-            OPTIMIZED_CHUNKGEN = false;
+        String OPTIMIZED_CHUNKGEN = cfg.getString("optimizedChunkgen", CATEGORY_GENERAL, "Optimized", "Disable this if you have mods like NEID or JEID installed. Note that when NEID or JEID is present this is disabled by default");
+        if ((ModSetup.neid || ModSetup.jeid)&&"Optimized".equals(OPTIMIZED_CHUNKGEN)) {
+            LostCities.setup.getLogger().log(Level.ERROR, "NEID or JEID detected: Optimized PrimerDriver unapplicate, fallback to Safe.");
+            OPTIMIZED_CHUNKGEN = "Safe";
         }
+        RPrimerDriver.setDriver(OPTIMIZED_CHUNKGEN);
 
         return profileList;
     }

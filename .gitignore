@@ -1,0 +1,8 @@
+bin/
+.classpath
+.gradle/
+.project
+.settings/
+LostCities_Client.launch
+LostCities_Server.launch
+build/

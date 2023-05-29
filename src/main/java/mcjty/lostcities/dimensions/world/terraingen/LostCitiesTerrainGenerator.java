@@ -1,5 +1,18 @@
 package mcjty.lostcities.dimensions.world.terraingen;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.BiFunction;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import mcjty.lostcities.api.LostCityEvent;
 import mcjty.lostcities.api.RailChunkType;
 import mcjty.lostcities.config.LostCityConfiguration;
@@ -8,13 +21,34 @@ import mcjty.lostcities.dimensions.world.ChunkHeightmap;
 import mcjty.lostcities.dimensions.world.LostCityChunkGenerator;
 import mcjty.lostcities.dimensions.world.driver.IIndex;
 import mcjty.lostcities.dimensions.world.driver.IPrimerDriver;
-import mcjty.lostcities.dimensions.world.driver.OptimizedDriver;
-import mcjty.lostcities.dimensions.world.driver.SafeDriver;
-import mcjty.lostcities.dimensions.world.lost.*;
-import mcjty.lostcities.dimensions.world.lost.cityassets.*;
+import mcjty.lostcities.dimensions.world.driver.RPrimerDriver;
+import mcjty.lostcities.dimensions.world.lost.BiomeInfo;
+import mcjty.lostcities.dimensions.world.lost.BuildingInfo;
+import mcjty.lostcities.dimensions.world.lost.CitySphere;
+import mcjty.lostcities.dimensions.world.lost.DamageArea;
+import mcjty.lostcities.dimensions.world.lost.Direction;
+import mcjty.lostcities.dimensions.world.lost.Highway;
+import mcjty.lostcities.dimensions.world.lost.Orientation;
+import mcjty.lostcities.dimensions.world.lost.Railway;
+import mcjty.lostcities.dimensions.world.lost.Transform;
+import mcjty.lostcities.dimensions.world.lost.cityassets.AssetRegistries;
+import mcjty.lostcities.dimensions.world.lost.cityassets.BuildingPart;
+import mcjty.lostcities.dimensions.world.lost.cityassets.CityStyle;
+import mcjty.lostcities.dimensions.world.lost.cityassets.CompiledPalette;
+import mcjty.lostcities.dimensions.world.lost.cityassets.IBuildingPart;
+import mcjty.lostcities.dimensions.world.lost.cityassets.Palette;
 import mcjty.lostcities.varia.ChunkCoord;
 import mcjty.lostcities.varia.GeometryTools;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockFlower;
+import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockOldLeaf;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockRail;
+import net.minecraft.block.BlockRailBase;
+import net.minecraft.block.BlockRailPowered;
+import net.minecraft.block.BlockSapling;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -27,10 +61,6 @@ import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.*;
-import java.util.function.BiFunction;
 
 public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
 
@@ -82,7 +112,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
 
     public LostCitiesTerrainGenerator(LostCityChunkGenerator provider) {
         super(provider);
-        driver = LostCityConfiguration.OPTIMIZED_CHUNKGEN ? new OptimizedDriver() : new SafeDriver();
+        driver = RPrimerDriver.createPrimeDriver();
         this.mainGroundLevel = provider.getProfile().GROUNDLEVEL;
         this.waterLevel = provider.getProfile().GROUNDLEVEL - provider.getProfile().WATERLEVEL_OFFSET;
         this.rubbleNoise = new NoiseGeneratorPerlin(provider.rand, 4);
@@ -406,7 +436,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
     }
 
     private void defaultGenerate(int chunkX, int chunkZ, ChunkPrimer primer) {
-        IPrimerDriver driver = LostCityConfiguration.OPTIMIZED_CHUNKGEN ? new OptimizedDriver() : new SafeDriver();
+        IPrimerDriver driver = RPrimerDriver.createPrimeDriver();
         driver.setPrimer(primer);
         generateHeightmap(chunkX, chunkZ);
         for (int x4 = 0; x4 < 4; ++x4) {
