@@ -11,6 +11,9 @@ import mcjty.lostcities.LostCities;
 public class RPrimerDriver {
 	
 	public static void setDriver(String a) {
+		init();
+		LostCities.setup.getLogger().log(Level.INFO, "RPrimerDriver switch to: {}",a);
+		
 		cur_n=a;
 		if(REGISTRY.containsKey(a)) {
 			cur_v=REGISTRY.get(a);
@@ -23,7 +26,9 @@ public class RPrimerDriver {
 	}
 	
 	public static void addDriver(String a,Class<? extends IPrimerDriver> b) {
+		init();
 		Objects.requireNonNull(b);
+		LostCities.setup.getLogger().log(Level.INFO, "RPrimerDriver register: {} -> {}",a,b.getName());
 		REGISTRY.put(a,b);
 	}
 
@@ -36,7 +41,6 @@ public class RPrimerDriver {
 				e.printStackTrace();
 			}
 		}
-		
 		
 		if(null!=cur_n) {
 			if(REGISTRY.containsKey(cur_n)) {
@@ -59,13 +63,24 @@ public class RPrimerDriver {
 	}
 	
 	/** ======== private ======== */
-	static {
+	public static void init(){
+		if(REGISTRY instanceof Map) {
+			return;
+		}
+		if(null==LostCities.setup.getLogger()) {
+			RuntimeException e=new RuntimeException(RPrimerDriver.class.getName()+"Cannot init before PreInit called");
+			e.printStackTrace(System.err);
+			System.err.println(e.getMessage());
+			throw e;
+		}
+		LostCities.setup.getLogger().log(Level.INFO, "RPrimerDriver loading...");
+		REGISTRY=new HashMap<>();
 		addDriver("Optimized", OptimizedDriver.class);
 		addDriver("Safe", SafeDriver.class);
 	}
 	
 	public static String cur_n=null;
 	public static Class<? extends IPrimerDriver> cur_v=null;
-	public static Map<String,Class<? extends IPrimerDriver>> REGISTRY=new HashMap<>();
+	public static Map<String,Class<? extends IPrimerDriver>> REGISTRY=null;
 
 }
