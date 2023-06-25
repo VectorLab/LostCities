@@ -1,10 +1,8 @@
 package mcjty.lostcities.network;
 
 import io.netty.buffer.ByteBuf;
-import mcjty.lostcities.config.LostCityProfile;
 import mcjty.lostcities.dimensions.world.WorldTypeTools;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -39,9 +37,8 @@ public class PacketRequestProfile implements IMessage {
         }
 
         private void handle(PacketRequestProfile message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().player;
-            LostCityProfile profile = WorldTypeTools.getProfile(DimensionManager.getWorld(message.dimension));
-            PacketHandler.INSTANCE.sendTo(new PacketReturnProfileToClient(message.dimension, profile.getName()), player);
+        	EntityPlayerMP player = ctx.getServerHandler().player;
+        	WorldTypeTools.getProfileFromClient(player,message.dimension);
         }
     }
 

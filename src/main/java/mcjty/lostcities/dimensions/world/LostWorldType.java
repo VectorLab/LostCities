@@ -1,9 +1,9 @@
 package mcjty.lostcities.dimensions.world;
 
 import mcjty.lostcities.config.BiomeSelectionStrategy;
-import mcjty.lostcities.config.LostCityConfiguration;
 import mcjty.lostcities.config.LostCityProfile;
 import mcjty.lostcities.gui.GuiLostCityConfiguration;
+import mcjty.lostcities.profile.ProfileRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.server.MinecraftServer;
@@ -69,7 +69,7 @@ public class LostWorldType extends WorldType {
             String[] outsideManualBiomeMappings = profile.MANUAL_BIOME_MAPPINGS;
             BiomeSelectionStrategy outsideStrategy = null;
             if (profile.isSpace() && profile.CITYSPHERE_LANDSCAPE_OUTSIDE && !profile.CITYSPHERE_OUTSIDE_PROFILE.isEmpty()) {
-                LostCityProfile outProfile = LostCityConfiguration.profiles.get(profile.CITYSPHERE_OUTSIDE_PROFILE);
+                LostCityProfile outProfile = ProfileRegistry.getLocalProfileByName(profile.CITYSPHERE_OUTSIDE_PROFILE);
                 outsideAllowedbiomeFactors = outProfile.ALLOWED_BIOME_FACTORS;
                 outsideManualBiomeMappings = outProfile.MANUAL_BIOME_MAPPINGS;
                 outsideStrategy = outProfile.BIOME_SELECTION_STRATEGY;

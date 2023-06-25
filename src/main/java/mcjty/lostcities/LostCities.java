@@ -1,20 +1,32 @@
 package mcjty.lostcities;
 
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.apache.logging.log4j.Logger;
+
 import mcjty.lostcities.api.ILostCities;
 import mcjty.lostcities.commands.CommandBuildPart;
 import mcjty.lostcities.commands.CommandDebug;
 import mcjty.lostcities.commands.CommandExportBuilding;
 import mcjty.lostcities.commands.CommandExportPart;
 import mcjty.lostcities.dimensions.world.WorldTypeTools;
-import mcjty.lostcities.dimensions.world.lost.*;
+import mcjty.lostcities.dimensions.world.lost.BiomeInfo;
+import mcjty.lostcities.dimensions.world.lost.BuildingInfo;
+import mcjty.lostcities.dimensions.world.lost.City;
+import mcjty.lostcities.dimensions.world.lost.CitySphere;
+import mcjty.lostcities.dimensions.world.lost.Highway;
+import mcjty.lostcities.dimensions.world.lost.Railway;
 import mcjty.lostcities.setup.IProxy;
 import mcjty.lostcities.setup.ModSetup;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.*;
-
-import java.util.Optional;
-import java.util.function.Function;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 @Mod(modid = LostCities.MODID, name="The Lost Cities",
         dependencies =
@@ -24,12 +36,13 @@ import java.util.function.Function;
         acceptableRemoteVersions = "*")
 public class LostCities {
     public static final String MODID = "lostcities";
-    public static final String VERSION = "2.0.22";
+    public static final String VERSION = "2.0.23";
     public static final String MIN_FORGE11_VER = "13.19.0.2176";
 
     @SidedProxy(clientSide="mcjty.lostcities.setup.ClientProxy", serverSide="mcjty.lostcities.setup.ServerProxy")
     public static IProxy proxy;
     public static ModSetup setup = new ModSetup();
+    public static Logger logger;
 
     @Mod.Instance("lostcities")
     public static LostCities instance;
@@ -38,6 +51,7 @@ public class LostCities {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {
+    	logger=e.getModLog();
         setup.preInit(e);
         proxy.preInit(e);
     }
@@ -92,4 +106,7 @@ public class LostCities {
             }
         }
     }
+    
+    public static final String CHUNK_GENERATOR_TAG=MODID+"Profile";
+    
 }

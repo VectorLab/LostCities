@@ -380,7 +380,7 @@ public class LostCitiesTerrainGenerator extends NormalTerrainGenerator {
             Map<String, Integer> map = pair.getRight();
 
             char torch = driver.getBlock();
-            IBlockState torchState = Block.BLOCK_STATE_IDS.getByValue(torch);
+            IBlockState torchState = Block.BLOCK_STATE_IDS.getByValue((int)torch);// fix Profile "cavern" NullPointerException here, keep type case
             if (map != null) {
                 int x = driver.getX();
                 int z = driver.getZ();

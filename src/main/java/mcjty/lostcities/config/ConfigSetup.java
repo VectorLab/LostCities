@@ -1,56 +1,52 @@
 package mcjty.lostcities.config;
 
+import java.io.File;
+
 import mcjty.lostcities.LostCities;
+import mcjty.lostcities.profile.ProfileRegistry;
 import mcjty.lostcities.setup.ModSetup;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLLog;
-import org.apache.logging.log4j.Level;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ConfigSetup {
 
     private static Configuration mainConfig;
-    public static Map<String, Configuration> profileConfigs = new HashMap<>();
+//    public static Map<String, Configuration> profileConfigs = new HashMap<>();
 
     public static void init() {
-        mainConfig = new Configuration(new File(ModSetup.modConfigDir.getPath() + File.separator + "lostcities", "general.cfg"));
+    	ProfileRegistry.init();
+        mainConfig = new Configuration(new File(ModSetup.modConfigDir, "general.cfg"));
         Configuration cfg = mainConfig;
         try {
             cfg.load();
-            String[] profileList = LostCityConfiguration.init(cfg);
-            initProfiles(profileList, true);
-            profileList = LostCityConfiguration.getPrivateProfiles(cfg);
-            initProfiles(profileList, false);
-
-            fixConfigs();
+            LostCityConfiguration.init(cfg);
         } catch (Exception e1) {
-            FMLLog.log(Level.ERROR, e1, "Problem loading config file!");
+        	LostCities.logger.error( "Problem loading config file!");
+        	LostCities.logger.catching(e1);
         } finally {
             if (mainConfig.hasChanged()) {
                 mainConfig.save();
             }
+/*
             for (Configuration config : profileConfigs.values()) {
                 if (config.hasChanged()) {
                     config.save();
                 }
             }
+*/
         }
     }
-
+/*
     private static void initProfiles(String[] profileList, boolean isPublic) {
         for (String name : profileList) {
             LostCityProfile profile = new LostCityProfile(name, LostCityConfiguration.standardProfiles.get(name), isPublic);
-            Configuration profileCfg = new Configuration(new File(ModSetup.modConfigDir.getPath() + File.separator + "lostcities", "profile_" + name + ".cfg"));
+            Configuration profileCfg = new Configuration(new File(ModSetup.modConfigDir, "profile_" + name + ".cfg"));
             profileCfg.load();
             profile.init(profileCfg);
             LostCityConfiguration.profiles.put(name, profile);
             profileConfigs.put(name, profileCfg);
         }
     }
-
+// No responsible for old configure version
     private static void fixConfigs() {
         for (Map.Entry<String, LostCityProfile> entry : LostCityConfiguration.profiles.entrySet()) {
             String name = entry.getKey();
@@ -76,15 +72,17 @@ public class ConfigSetup {
             }
         }
     }
-
+*/
     public static void postInit() {
         if (mainConfig.hasChanged()) {
             mainConfig.save();
         }
+/*
         for (Configuration config : profileConfigs.values()) {
             if (config.hasChanged()) {
                 config.save();
             }
         }
+*/
     }
 }

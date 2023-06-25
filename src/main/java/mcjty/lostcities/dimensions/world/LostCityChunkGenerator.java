@@ -37,6 +37,7 @@ import mcjty.lostcities.dimensions.world.lost.cityassets.Condition;
 import mcjty.lostcities.dimensions.world.lost.cityassets.ConditionContext;
 import mcjty.lostcities.dimensions.world.lost.cityassets.WorldStyle;
 import mcjty.lostcities.dimensions.world.terraingen.LostCitiesTerrainGenerator;
+import mcjty.lostcities.profile.ProfileRegistry;
 import mcjty.lostcities.varia.ChunkCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
@@ -156,7 +157,7 @@ public class LostCityChunkGenerator implements IChunkGenerator, ILostChunkGenera
         dimensionId = world.provider.getDimension();
         profile = WorldTypeTools.getProfile(world);
         if (profile.isSpace() && !profile.CITYSPHERE_OUTSIDE_PROFILE.isEmpty()) {
-            outsideProfile = LostCityConfiguration.profiles.get(profile.CITYSPHERE_OUTSIDE_PROFILE);
+            outsideProfile = ProfileRegistry.getLocalProfileByName(profile.CITYSPHERE_OUTSIDE_PROFILE);
         } else {
             outsideProfile = profile;
         }

@@ -1,5 +1,18 @@
 package mcjty.lostcities.setup;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
+import org.apache.logging.log4j.Logger;
+
 import mcjty.lostcities.ForgeEventHandlers;
 import mcjty.lostcities.LostCities;
 import mcjty.lostcities.TerrainEventHandlers;
@@ -15,12 +28,6 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 
 public class ModSetup {
 
@@ -38,8 +45,12 @@ public class ModSetup {
         PacketHandler.registerMessages("lostcities");
 
         setupModCompat();
+        
+        {
+        	modConfigDir = new File(e.getModConfigurationDirectory(),"lostcities");
+        }
 
-        modConfigDir = e.getModConfigurationDirectory();
+        
         ConfigSetup.init();
         ModDimensions.init();
 
@@ -66,22 +77,52 @@ public class ModSetup {
 
     public void postInit(FMLPostInitializationEvent e) {
         ConfigSetup.postInit();
-        ConfigSetup.profileConfigs.clear();
+//        ConfigSetup.profileConfigs.clear();
 
         AssetRegistries.reset();
-        for (String path : LostCityConfiguration.ASSETS) {
-            if (path.startsWith("/")) {
-                try(InputStream inputstream = LostCities.class.getResourceAsStream(path)) {
-                    AssetRegistries.load(inputstream, path);
-                } catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
-                }
-            } else if (path.startsWith("$")) {
-                File file = new File(modConfigDir.getPath() + File.separator + path.substring(1));
-                AssetRegistries.load(file);
-            } else {
-                throw new RuntimeException("Invalid path for lostcity resource in 'assets' config!");
+        
+        File dir_assets=new File(modConfigDir,"assets");
+        if(!dir_assets.isDirectory()){
+    		if(dir_assets.exists()) {
+    			dir_assets.delete();
+    		}
+        	copyResDir("/assets/lostcities/citydata",dir_assets);
+        }
+/*
+        {
+        	// no way to edit resources dir after build
+        	String[] ASSETS = new String[] {
+                    "/assets/lostcities/citydata/conditions.json",
+                    "/assets/lostcities/citydata/palette.json",
+                    "/assets/lostcities/citydata/palette_desert.json",
+                    "/assets/lostcities/citydata/palette_chisel.json",
+                    "/assets/lostcities/citydata/palette_chisel_desert.json",
+                    "/assets/lostcities/citydata/highwayparts.json",
+                    "/assets/lostcities/citydata/railparts.json",
+                    "/assets/lostcities/citydata/monorailparts.json",
+                    "/assets/lostcities/citydata/buildingparts.json",
+                    "/assets/lostcities/citydata/library.json"
+            };
+            for (String path : ASSETS) {
+            	try(InputStream inputstream = LostCities.class.getResourceAsStream(path)) {
+            		AssetRegistries.load(inputstream, path);
+            	} catch (IOException ex) {
+            		throw new UncheckedIOException(ex);
+            	}
             }
+        }
+*/
+	
+        // assets dir
+        {
+        	int i=0;
+	        for (File file : dir_assets.listFiles()) {
+	        	if(file.isFile()&&file.getName().endsWith(".json")) {
+	        		AssetRegistries.load(file);
+	        		++i;
+	        	}
+	        }
+	        LostCities.logger.info("Loaded {} Assets (s).",i);
         }
 
         if (LostCityConfiguration.DEBUG) {
@@ -89,4 +130,49 @@ public class ModSetup {
             AssetRegistries.showStatistics();
         }
     }
+    
+	private static void copyResDir(String from, File to) {
+		  try {
+		    // Get the URL of the resource directory
+		    URL fromUrl = LostCities.class.getResource(from);
+		    // Check if the resource exists and is a directory
+		    if (fromUrl != null && fromUrl.getProtocol().equals("jar")) {
+		      // Get the jar file and the entry name of the resource directory
+		      JarURLConnection jarConnection = (JarURLConnection) fromUrl.openConnection();
+		      JarFile jarFile = jarConnection.getJarFile();
+		      String entryName = jarConnection.getEntryName();
+		      // Iterate over the entries in the jar file
+		      Enumeration<JarEntry> entries = jarFile.entries();
+		      while (entries.hasMoreElements()) {
+		        JarEntry entry = entries.nextElement();
+		        // Check if the entry name starts with the resource directory name
+		        if (entry.getName().startsWith(entryName)) {
+		          // Get the relative path of the entry
+		          String relativePath = entry.getName().substring(entryName.length());
+		          // Create a file object for the destination file or directory
+		          File destFile = new File(to, relativePath);
+		          // If the entry is a directory, create it in the destination
+		          if (entry.isDirectory()) {
+		            destFile.mkdir();
+		          } else {
+		            // If the entry is a file, copy its contents to the destination file
+		            InputStream in = jarFile.getInputStream(entry);
+		            OutputStream out = new FileOutputStream(destFile);
+		            byte[] buffer = new byte[1024];
+		            int len;
+		            while ((len = in.read(buffer)) > 0) {
+		              out.write(buffer, 0, len);
+		            }
+		            in.close();
+		            out.close();
+		          }
+		        }
+		      }
+		    } else {
+		      throw new IOException("Resource not found or not a directory: " + from);
+		    }
+		  } catch (IOException e) {
+		    e.printStackTrace();
+		  }
+		}
 }

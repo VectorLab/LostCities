@@ -2,8 +2,11 @@ package mcjty.lostcities.gui;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import mcjty.lostcities.LostCities;
 import mcjty.lostcities.config.LostCityConfiguration;
 import mcjty.lostcities.config.LostCityProfile;
+import mcjty.lostcities.profile.ProfileRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
@@ -32,8 +35,8 @@ public class GuiLostCityConfiguration extends GuiScreen {
         String profileName = LostCityConfiguration.DEFAULT_PROFILE;
         if (parent.chunkProviderSettingsJson != null && !parent.chunkProviderSettingsJson.trim().isEmpty()) {
             JsonElement parsed = parser.parse(parent.chunkProviderSettingsJson);
-            if (parsed.getAsJsonObject().has("profile")) {
-                profileName = parsed.getAsJsonObject().get("profile").getAsString();
+            if (parsed.getAsJsonObject().has(LostCities.CHUNK_GENERATOR_TAG)) {
+                profileName = parsed.getAsJsonObject().get(LostCities.CHUNK_GENERATOR_TAG).getAsString();
             }
         }
 
@@ -45,7 +48,7 @@ public class GuiLostCityConfiguration extends GuiScreen {
 
     private int countPublicProfiles() {
         int cnt = 0;
-        for (Map.Entry<String, LostCityProfile> entry : LostCityConfiguration.profiles.entrySet()) {
+        for (Map.Entry<String, LostCityProfile> entry : ProfileRegistry.getLocalProfileAll().entrySet()) {
             if (entry.getValue().isPublic()) {
                 cnt++;
             }
@@ -63,10 +66,10 @@ public class GuiLostCityConfiguration extends GuiScreen {
         int num = -1;
         int cnt = 0;
 
-        List<String> profileKeys = new ArrayList<>(LostCityConfiguration.profiles.keySet());
+        List<String> profileKeys = new ArrayList<>(ProfileRegistry.getLocalProfileAll().keySet());
         profileKeys.sort(String::compareTo);
         for (String key : profileKeys) {
-            LostCityProfile profile = LostCityConfiguration.profiles.get(key);
+            LostCityProfile profile = ProfileRegistry.getLocalProfileAll().get(key);
             if (profile.isPublic()) {
                 num++;
                 if (num < page * 8) {
@@ -116,7 +119,7 @@ public class GuiLostCityConfiguration extends GuiScreen {
     }
 
     private void setProfile(LostCityProfile profile) {
-        parent.chunkProviderSettingsJson = "{ \"profile\": \"" + profile.getName() + "\" }";
+        parent.chunkProviderSettingsJson = "{ \""+LostCities.CHUNK_GENERATOR_TAG+"\": \"" + profile.getName() + "\" }";
         this.mc.displayGuiScreen(parent);
     }
 
@@ -142,7 +145,7 @@ public class GuiLostCityConfiguration extends GuiScreen {
             if (button.isMouseOver()) {
                 String name = profileNames.get(button.id);
                 if (name != null) {
-                    LostCityProfile profile = LostCityConfiguration.profiles.get(name);
+                    LostCityProfile profile = ProfileRegistry.getLocalProfileAll().get(name);
                     if (profile != null && profile.getIcon() != null) {
                         int bx = button.x + 95;
                         int by = button.y + 6;
