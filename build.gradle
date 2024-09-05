@@ -29,7 +29,7 @@ apply plugin: 'maven-publish'
 //apply plugin: 'maven'
 
 repositories {
-  maven {
+/*  maven {
     url = "https://maven.mcmoddev.com/"
   }
     maven { // JEI
@@ -53,7 +53,7 @@ repositories {
     maven {
         name = "CoFH Maven"
         url = "http://maven.covers1624.net"
-    }
+    }*/
 }
 
 def ENV = System.getenv()
@@ -85,10 +85,10 @@ artifacts {
 
 
 dependencies {
-    deobfCompile "mezz.jei:jei_${jei_version}"
-    deobfCompile "mcp.mobius.waila:Hwyla:${waila_version}"
-    deobfCompile "mcjty.theoneprobe:TheOneProbe-${top_version}"
-    deobfCompile "cofh:RedstoneFlux:${redstoneflux_version}"
+    //deobfCompile "mezz.jei:jei_${jei_version}"
+    //deobfCompile "mcp.mobius.waila:Hwyla:${waila_version}"
+    //deobfCompile "mcjty.theoneprobe:TheOneProbe-${top_version}"
+    //deobfCompile "cofh:RedstoneFlux:${redstoneflux_version}"
     //deobfCompile "mcp.mobius.waila:Hwyla:1.8.10-B23_1.11:api"
     //deobfCompile "mcjty.theoneprobe:TheOneProbe:1.1x-1.4.7-57"
     //deobfCompile "team.chisel:Chisel:MC1.11.2-0.0.10.14"
